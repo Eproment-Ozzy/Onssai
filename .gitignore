@@ -1,0 +1,10 @@
+node_modules/
+venv/
+.next/
+.cache/
+.env.local
+dev.log
+*.deb
+*.onnx
+*.tar.gz
+*.so
