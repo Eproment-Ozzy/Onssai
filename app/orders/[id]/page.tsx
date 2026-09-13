@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import MessageForm from './message-form'
 import PhotoUpload from './photo-upload'
+import StageForm from './stage-form'
 
 export default async function OrderDetailPage({ params }: { params: { id: string } }) {
   const { id } = await params
@@ -24,9 +25,15 @@ export default async function OrderDetailPage({ params }: { params: { id: string
     .eq('order_id', id)
     .order('created_at', { ascending: true })
 
+  const { data: stages } = await supabase
+    .from('order_stages')
+    .select('id, stage_number, stage_name, required_photos, status')
+    .eq('order_id', id)
+    .order('stage_number', { ascending: true })
+
   const { data: photos } = await supabase
     .from('evidence')
-    .select('id, file_url, taken_at')
+    .select('id, file_url, taken_at, stage_id')
     .eq('order_id', id)
     .order('taken_at', { ascending: false })
 
@@ -37,7 +44,24 @@ export default async function OrderDetailPage({ params }: { params: { id: string
         {order.buyer?.name} &rarr; {order.supplier?.name} &middot; {order.status}
       </p>
 
-      <h2 className="text-sm font-semibold mb-2">Uretim Fotograflari</h2>
+      <h2 className="text-sm font-semibold mb-2">Uretim Asamalari</h2>
+      {(stages ?? []).length === 0 && <p className="text-sm opacity-60">Henuz asama tanimlanmadi.</p>}
+      <ul className="divide-y">
+        {(stages ?? []).map((st: any) => {
+          const adet = (photos ?? []).filter((p: any) => p.stage_id === st.id).length
+          return (
+            <li key={st.id} className="py-2 flex justify-between text-sm">
+              <span>{st.stage_number}. {st.stage_name}</span>
+              <span className={adet >= st.required_photos ? 'text-green-600' : 'opacity-60'}>
+                {adet} / {st.required_photos} foto
+              </span>
+            </li>
+          )
+        })}
+      </ul>
+      <StageForm orderId={order.id} nextNumber={(stages ?? []).length + 1} />
+
+      <h2 className="text-sm font-semibold mt-8 mb-2">Uretim Fotograflari</h2>
       <div className="grid grid-cols-3 gap-2">
         {(photos ?? []).map((p: any) => (
           <img key={p.id} src={p.file_url} alt="" className="w-full h-24 object-cover rounded border" />
@@ -45,7 +69,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
       </div>
       {(photos ?? []).length === 0 && <p className="text-sm opacity-60">Henuz fotograf yok.</p>}
 
-      <PhotoUpload orderId={order.id} />
+      <PhotoUpload orderId={order.id} stages={stages ?? []} />
 
       <h2 className="text-sm font-semibold mt-8 mb-2">Mesajlar</h2>
       <div className="space-y-3">
