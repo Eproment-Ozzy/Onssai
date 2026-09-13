@@ -143,11 +143,12 @@ export default async function DashboardPage() {
             <ul className="divide-y">
               {orders.map((o: any) => (
                 <li key={o.id} className="py-3">
-                  <Link href={`/orders/${o.id}`} className="flex justify-between items-center text-sm hover:bg-gray-50 -mx-2 px-2 py-1 rounded">
+                  <Link href={`/orders/${o.id}`} className="group" className="flex justify-between items-center text-sm hover:bg-gray-50 -mx-2 px-2 py-1 rounded">
                     <div>
                       <p className="font-medium">{o.companies?.name}</p>
                       <p className="text-gray-500">{o.quantity} adet · {o.total_amount} {o.currency}</p>
-                    </div>
+                    <span className="inline-block ml-1 text-gray-400 group-hover:text-gray-600 transition-colors">→</span>
+      </div>
                     <span className="text-xs bg-gray-100 rounded px-2 py-1 h-fit">{o.status}</span>
                   </Link>
                 </li>

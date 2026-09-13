@@ -43,8 +43,8 @@ export default function StageForm({ orderId, nextNumber }: { orderId: string; ne
         onChange={(e) => setPhotos(e.target.value)}
       />
       <button onClick={add} disabled={loading}
-        className="bg-black text-white text-sm rounded px-4 py-2 disabled:opacity-50">
-        Ekle
+        className="bg-black text-white text-sm rounded px-4 py-2 disabled:opacity-50 active:scale-95 transition-transform font-medium hover:bg-gray-800">
+        {loading ? 'Ekleniyor...' : 'Ekle'}
       </button>
     </div>
   )

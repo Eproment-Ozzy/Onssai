@@ -56,18 +56,24 @@ export default function PhotoUpload({ orderId, stages }: { orderId: string; stag
   }
 
   return (
-    <div className="pt-4 mt-4 border-t flex items-center gap-2">
-      <select value={stageId} onChange={(e) => setStageId(e.target.value)}
-        className="border rounded px-2 py-2 text-sm">
-        <option value="">Asama sec</option>
-        {stages.map((s: any) => (
-          <option key={s.id} value={s.id}>{s.stage_number}. {s.stage_name}</option>
-        ))}
-      </select>
-      <label className={stageId ? "inline-block bg-black text-white text-sm rounded px-4 py-2" : "inline-block bg-gray-300 text-white text-sm rounded px-4 py-2"}>
-        {loading ? 'Yukleniyor...' : 'Fotograf Ekle'}
-        <input type="file" accept="image/*" capture="environment" onChange={handleFile} disabled={loading} className="hidden" />
-      </label>
+    <div className="pt-4 mt-4 border-t">
+      <div className="flex gap-2 items-center">
+        <select value={stageId} onChange={(e) => setStageId(e.target.value)}
+          className="flex-1 border rounded px-3 py-2 text-sm">
+          <option value="">Asama sec</option>
+          {stages.map((s: any) => (
+            <option key={s.id} value={s.id}>{s.stage_number}. {s.stage_name}</option>
+          ))}
+        </select>
+        <label className={`text-sm rounded px-4 py-2 transition-all active:scale-95 cursor-pointer font-medium ${
+          stageId 
+            ? "bg-black text-white hover:bg-gray-800" 
+            : "bg-gray-200 text-gray-500 cursor-not-allowed"
+        }`}>
+          {loading ? 'Yukleniyor...' : 'Ekle'}
+          <input type="file" accept="image/*" capture="environment" onChange={handleFile} disabled={loading || !stageId} className="hidden" />
+        </label>
+      </div>
     </div>
   )
 }
