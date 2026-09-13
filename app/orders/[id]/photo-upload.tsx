@@ -20,6 +20,10 @@ export default function PhotoUpload({ orderId }: { orderId: string }) {
     const safe = file.name.replace(/[^a-zA-Z0-9.]/g, '')
     const path = orderId + '/' + Date.now() + '-' + safe
 
+    const buf = await file.arrayBuffer()
+    const digest = await crypto.subtle.digest('SHA-256', buf)
+    const hash = Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('')
+
     const up = await supabase.storage.from('evidence').upload(path, file)
     if (up.error) { alert(up.error.message); setLoading(false); return }
 
@@ -31,6 +35,7 @@ export default function PhotoUpload({ orderId }: { orderId: string }) {
       file_type: 'photo',
       file_url: pub.publicUrl,
       file_size_bytes: file.size,
+      file_hash: hash,
       taken_at: new Date().toISOString(),
     })
 
