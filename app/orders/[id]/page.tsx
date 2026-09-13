@@ -38,6 +38,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
     .order('taken_at', { ascending: false })
 
   return (
+      <div className="mb-4"><Link href="/dashboard" className="text-sm text-blue-600 hover:text-blue-800">← Geri</Link></div>
     <div className="max-w-2xl mx-auto p-6">
       <h1 className="text-xl font-semibold mb-1">Siparis #{order.id.slice(0, 8)}</h1>
       <p className="text-sm opacity-70 mb-6">
@@ -50,6 +51,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
         {(stages ?? []).map((st: any) => {
           const adet = (photos ?? []).filter((p: any) => p.stage_id === st.id).length
           return (
+      <div className="mb-4"><Link href="/dashboard" className="text-sm text-blue-600 hover:text-blue-800">← Geri</Link></div>
             <li key={st.id} className="py-2 flex justify-between text-sm">
               <span>{st.stage_number}. {st.stage_name}</span>
               <span className={adet >= st.required_photos ? 'text-green-600' : 'opacity-60'}>
@@ -66,6 +68,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
         {(photos ?? []).map((p: any) => {
           const stage = (stages ?? []).find((st: any) => st.id === p.stage_id)
           return (
+      <div className="mb-4"><Link href="/dashboard" className="text-sm text-blue-600 hover:text-blue-800">← Geri</Link></div>
             <div key={p.id} className="flex flex-col">
               <img src={p.file_url} alt="" className="w-full h-24 object-cover rounded border" />
               <p className="text-xs opacity-60 mt-1">{stage ? `${stage.stage_number}. ${stage.stage_name}` : "Asama yok"}</p>
@@ -82,6 +85,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
         {(messages ?? []).map((m: any) => {
           const mine = m.sender_id === user.id
           return (
+      <div className="mb-4"><Link href="/dashboard" className="text-sm text-blue-600 hover:text-blue-800">← Geri</Link></div>
             <div key={m.id} className={mine ? 'text-right' : 'text-left'}>
               <p className="text-xs opacity-70 mb-1">{m.users?.full_name}</p>
               <span className={mine ? 'inline-block rounded px-3 py-2 text-sm bg-black text-white' : 'inline-block rounded px-3 py-2 text-sm bg-gray-100'}>
