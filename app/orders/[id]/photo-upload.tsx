@@ -20,6 +20,12 @@ export default function PhotoUpload({ orderId }: { orderId: string }) {
     const safe = file.name.replace(/[^a-zA-Z0-9.]/g, '')
     const path = orderId + '/' + Date.now() + '-' + safe
 
+    let deviceId = localStorage.getItem('onssai_device_id')
+    if (!deviceId) {
+      deviceId = crypto.randomUUID()
+      localStorage.setItem('onssai_device_id', deviceId)
+    }
+
     const buf = await file.arrayBuffer()
     const digest = await crypto.subtle.digest('SHA-256', buf)
     const hash = Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('')
@@ -36,6 +42,7 @@ export default function PhotoUpload({ orderId }: { orderId: string }) {
       file_url: pub.publicUrl,
       file_size_bytes: file.size,
       file_hash: hash,
+      device_id: deviceId,
       taken_at: new Date().toISOString(),
     })
 
