@@ -63,9 +63,15 @@ export default async function OrderDetailPage({ params }: { params: { id: string
 
       <h2 className="text-sm font-semibold mt-8 mb-2">Uretim Fotograflari</h2>
       <div className="grid grid-cols-3 gap-2">
-        {(photos ?? []).map((p: any) => (
-          <img key={p.id} src={p.file_url} alt="" className="w-full h-24 object-cover rounded border" />
-        ))}
+        {(photos ?? []).map((p: any) => {
+          const stage = (stages ?? []).find((st: any) => st.id === p.stage_id)
+          return (
+            <div key={p.id} className="flex flex-col">
+              <img src={p.file_url} alt="" className="w-full h-24 object-cover rounded border" />
+              <p className="text-xs opacity-60 mt-1">{stage ? `${stage.stage_number}. ${stage.stage_name}` : "Asama yok"}</p>
+            </div>
+          )
+        })}
       </div>
       {(photos ?? []).length === 0 && <p className="text-sm opacity-60">Henuz fotograf yok.</p>}
 

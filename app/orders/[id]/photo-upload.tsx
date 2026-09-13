@@ -11,6 +11,7 @@ export default function PhotoUpload({ orderId, stages }: { orderId: string; stag
   const [stageId, setStageId] = useState('')
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    if (!stageId) { alert('Once asama sec'); e.target.value = ''; return }
     const file = e.target.files?.[0]
     if (!file) return
     if (!stageId) { alert('Once asama sec'); e.target.value = ''; return }
@@ -46,7 +47,9 @@ export default function PhotoUpload({ orderId, stages }: { orderId: string; stag
       file_size_bytes: file.size,
       file_hash: hash,
       device_id: deviceId,
+      stage_id: stageId,
       taken_at: new Date().toISOString(),
+      created_at: new Date().toISOString(),
     })
 
     setLoading(false)
