@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import MessageForm from './message-form'
+import PhotoUpload from './photo-upload'
 
 export default async function OrderDetailPage({ params }: { params: { id: string } }) {
   const { id } = await params
@@ -23,6 +24,12 @@ export default async function OrderDetailPage({ params }: { params: { id: string
     .eq('order_id', id)
     .order('created_at', { ascending: true })
 
+  const { data: photos } = await supabase
+    .from('evidence')
+    .select('id, file_url, taken_at')
+    .eq('order_id', id)
+    .order('taken_at', { ascending: false })
+
   return (
     <div className="max-w-2xl mx-auto p-6">
       <h1 className="text-xl font-semibold mb-1">Siparis #{order.id.slice(0, 8)}</h1>
@@ -30,6 +37,17 @@ export default async function OrderDetailPage({ params }: { params: { id: string
         {order.buyer?.name} &rarr; {order.supplier?.name} &middot; {order.status}
       </p>
 
+      <h2 className="text-sm font-semibold mb-2">Uretim Fotograflari</h2>
+      <div className="grid grid-cols-3 gap-2">
+        {(photos ?? []).map((p: any) => (
+          <img key={p.id} src={p.file_url} alt="" className="w-full h-24 object-cover rounded border" />
+        ))}
+      </div>
+      {(photos ?? []).length === 0 && <p className="text-sm opacity-60">Henuz fotograf yok.</p>}
+
+      <PhotoUpload orderId={order.id} />
+
+      <h2 className="text-sm font-semibold mt-8 mb-2">Mesajlar</h2>
       <div className="space-y-3">
         {(messages ?? []).map((m: any) => {
           const mine = m.sender_id === user.id
