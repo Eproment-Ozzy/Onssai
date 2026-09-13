@@ -13,6 +13,7 @@ export default function PhotoUpload({ orderId, stages }: { orderId: string; stag
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
+    if (!stageId) { alert('Once asama sec'); e.target.value = ''; return }
     setLoading(true)
 
     const { data: { user } } = await supabase.auth.getUser()
@@ -63,7 +64,7 @@ export default function PhotoUpload({ orderId, stages }: { orderId: string; stag
           <option key={s.id} value={s.id}>{s.stage_number}. {s.stage_name}</option>
         ))}
       </select>
-      <label className="inline-block bg-black text-white text-sm rounded px-4 py-2">
+      <label className={stageId ? "inline-block bg-black text-white text-sm rounded px-4 py-2" : "inline-block bg-gray-300 text-white text-sm rounded px-4 py-2"}>
         {loading ? 'Yukleniyor...' : 'Fotograf Ekle'}
         <input type="file" accept="image/*" capture="environment" onChange={handleFile} disabled={loading} className="hidden" />
       </label>
