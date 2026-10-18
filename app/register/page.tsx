@@ -10,6 +10,7 @@ export default function RegisterPage() {
   const supabase = createClient()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [sent, setSent] = useState(false)
   const [form, setForm] = useState({
     email: '', password: '', full_name: '',
     company_name: '', company_type: 'buyer', country: 'TR',
@@ -19,15 +20,16 @@ export default function RegisterPage() {
 
   async function handleSubmit() {
     setError('')
-    if (form.password.length < 6) {
-      setError('Sifre en az 6 karakter olmali')
+    if (form.password.length < 8) {
+      setError('Sifre en az 8 karakter olmali')
       return
     }
     setLoading(true)
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
       options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
         data: {
           full_name: form.full_name,
           company_name: form.company_name,
@@ -41,8 +43,28 @@ export default function RegisterPage() {
       setError(error.message)
       return
     }
+    // E-posta onayi aciksa oturum gelmez; kullanici gelen kutusuna yonlendirilir
+    if (!data.session) {
+      setSent(true)
+      return
+    }
     router.push('/dashboard')
     router.refresh()
+  }
+
+  if (sent) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+        <div className="w-full max-w-md bg-white rounded-lg shadow p-8 space-y-3">
+          <h1 className="text-2xl font-bold">E-postani kontrol et</h1>
+          <p className="text-sm text-gray-600">
+            {form.email} adresine bir onay linki gonderdik. Linke tikladiktan sonra hesabin
+            olusur; sirketin admin onayindan gecince RFQ, teklif ve urun ekleyebilirsin.
+          </p>
+          <Link href="/login" className="text-sm underline">Giris sayfasina don</Link>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -69,7 +91,7 @@ export default function RegisterPage() {
           value={form.country} onChange={(e) => set('country', e.target.value)} />
         <input className="w-full border rounded px-3 py-2" type="email" placeholder="E-posta"
           value={form.email} onChange={(e) => set('email', e.target.value)} />
-        <input className="w-full border rounded px-3 py-2" type="password" placeholder="Sifre (min 6 karakter)"
+        <input className="w-full border rounded px-3 py-2" type="password" placeholder="Sifre (min 8 karakter)"
           value={form.password} onChange={(e) => set('password', e.target.value)} />
 
         <button onClick={handleSubmit} disabled={loading}

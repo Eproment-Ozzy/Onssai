@@ -11,7 +11,7 @@ export default async function DashboardPage() {
 
   const { data: profile } = await supabase
     .from('users')
-    .select('full_name, email, role, company_id, companies(name, company_type, country)')
+    .select('full_name, email, role, company_id, companies(name, company_type, country, approved)')
     .eq('id', user.id)
     .single()
 
@@ -86,6 +86,12 @@ export default async function DashboardPage() {
           <LogoutButton />
         </div>
 
+        {!company?.approved && (
+          <div className="bg-yellow-50 text-yellow-800 text-sm rounded-lg p-4">
+            Sirketin admin onayi bekliyor. Onaylaninca RFQ, teklif ve urun ekleyebilirsin.
+          </div>
+        )}
+
         {isBuyer ? (
           <div className="bg-white rounded-lg shadow p-6 space-y-4">
             <div className="flex justify-between items-center">
@@ -143,7 +149,7 @@ export default async function DashboardPage() {
             <ul className="divide-y">
               {orders.map((o: any) => (
                 <li key={o.id} className="py-3">
-                  <Link href={`/orders/${o.id}`} className="group" className="flex justify-between items-center text-sm hover:bg-gray-50 -mx-2 px-2 py-1 rounded">
+                  <Link href={`/orders/${o.id}`} className="group flex justify-between items-center text-sm hover:bg-gray-50 -mx-2 px-2 py-1 rounded">
                     <div>
                       <p className="font-medium">{o.companies?.name}</p>
                       <p className="text-gray-500">{o.quantity} adet · {o.total_amount} {o.currency}</p>

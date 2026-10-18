@@ -1,6 +1,9 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+// Giris yapmadan acilabilen sayfalar; geri kalan her sey korumali
+const PUBLIC_PATHS = ['/', '/login', '/register', '/manifest.webmanifest']
+
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request })
 
@@ -28,8 +31,12 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   const path = request.nextUrl.pathname
 
-  if (!user && path.startsWith('/dashboard')) {
-    return NextResponse.redirect(new URL('/login', request.url))
+  const isPublic = PUBLIC_PATHS.includes(path) || path.startsWith('/auth/')
+
+  if (!user && !isPublic) {
+    const url = new URL('/login', request.url)
+    url.searchParams.set('next', path)
+    return NextResponse.redirect(url)
   }
   if (user && (path === '/login' || path === '/register')) {
     return NextResponse.redirect(new URL('/dashboard', request.url))

@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import MessageForm from './message-form'
@@ -5,8 +6,8 @@ import PhotoUpload from './photo-upload'
 import StageForm from './stage-form'
 
 export default async function OrderDetailPage({ params }: { params: { id: string } }) {
-  const { id } = await params
-  const supabase = await createClient()
+  const { id } = params
+  const supabase = createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -33,13 +34,22 @@ export default async function OrderDetailPage({ params }: { params: { id: string
 
   const { data: photos } = await supabase
     .from('evidence')
-    .select('id, file_url, taken_at, stage_id')
+    .select('id, file_path, taken_at, stage_id')
     .eq('order_id', id)
     .order('taken_at', { ascending: false })
 
+  // Bucket private: fotograflar 1 saatlik imzali linkle gosterilir
+  const paths = (photos ?? []).map((p: any) => p.file_path)
+  const { data: signed } = paths.length
+    ? await supabase.storage.from('evidence').createSignedUrls(paths, 3600)
+    : { data: [] as { path: string | null; signedUrl: string }[] }
+  const urlByPath = new Map((signed ?? []).map((s) => [s.path, s.signedUrl]))
+  const { data: profile } = await supabase.from('users').select('company_id').eq('id', user.id).single()
+  const isBuyer = profile?.company_id === order.buyer_id
+
   return (
-      <div className="mb-4"><Link href="/dashboard" className="text-sm text-blue-600 hover:text-blue-800">← Geri</Link></div>
     <div className="max-w-2xl mx-auto p-6">
+      <div className="mb-4"><Link href="/dashboard" className="text-sm text-blue-600 hover:text-blue-800">← Geri</Link></div>
       <h1 className="text-xl font-semibold mb-1">Siparis #{order.id.slice(0, 8)}</h1>
       <p className="text-sm opacity-70 mb-6">
         {order.buyer?.name} &rarr; {order.supplier?.name} &middot; {order.status}
@@ -51,7 +61,6 @@ export default async function OrderDetailPage({ params }: { params: { id: string
         {(stages ?? []).map((st: any) => {
           const adet = (photos ?? []).filter((p: any) => p.stage_id === st.id).length
           return (
-      <div className="mb-4"><Link href="/dashboard" className="text-sm text-blue-600 hover:text-blue-800">← Geri</Link></div>
             <li key={st.id} className="py-2 flex justify-between text-sm">
               <span>{st.stage_number}. {st.stage_name}</span>
               <span className={adet >= st.required_photos ? 'text-green-600' : 'opacity-60'}>
@@ -61,16 +70,15 @@ export default async function OrderDetailPage({ params }: { params: { id: string
           )
         })}
       </ul>
-      <StageForm orderId={order.id} nextNumber={(stages ?? []).length + 1} />
+      {isBuyer && <StageForm orderId={order.id} nextNumber={(stages ?? []).length + 1} />}
 
       <h2 className="text-sm font-semibold mt-8 mb-2">Uretim Fotograflari</h2>
       <div className="grid grid-cols-3 gap-2">
         {(photos ?? []).map((p: any) => {
           const stage = (stages ?? []).find((st: any) => st.id === p.stage_id)
           return (
-      <div className="mb-4"><Link href="/dashboard" className="text-sm text-blue-600 hover:text-blue-800">← Geri</Link></div>
             <div key={p.id} className="flex flex-col">
-              <img src={p.file_url} alt="" className="w-full h-24 object-cover rounded border" />
+              <img src={urlByPath.get(p.file_path) ?? ''} alt="" className="w-full h-24 object-cover rounded border" />
               <p className="text-xs opacity-60 mt-1">{stage ? `${stage.stage_number}. ${stage.stage_name}` : "Asama yok"}</p>
             </div>
           )
@@ -85,7 +93,6 @@ export default async function OrderDetailPage({ params }: { params: { id: string
         {(messages ?? []).map((m: any) => {
           const mine = m.sender_id === user.id
           return (
-      <div className="mb-4"><Link href="/dashboard" className="text-sm text-blue-600 hover:text-blue-800">← Geri</Link></div>
             <div key={m.id} className={mine ? 'text-right' : 'text-left'}>
               <p className="text-xs opacity-70 mb-1">{m.users?.full_name}</p>
               <span className={mine ? 'inline-block rounded px-3 py-2 text-sm bg-black text-white' : 'inline-block rounded px-3 py-2 text-sm bg-gray-100'}>

@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import LogoutButton from '../dashboard/logout-button'
+import ApproveButton from './approve-button'
 
 export default async function AdminPage() {
   const supabase = createClient()
@@ -31,7 +32,8 @@ export default async function AdminPage() {
 
   const { data: companies } = await supabase
     .from('companies')
-    .select('id, name, company_type, country, created_at')
+    .select('id, name, company_type, country, approved, created_at')
+    .order('approved', { ascending: true })
     .order('created_at', { ascending: false })
     .limit(20)
 
@@ -78,9 +80,14 @@ export default async function AdminPage() {
           ) : (
             <ul className="divide-y">
               {companies.map((c) => (
-                <li key={c.id} className="py-3 flex justify-between text-sm">
-                  <span className="font-medium">{c.name}</span>
-                  <span className="text-gray-500">{c.company_type} · {c.country}</span>
+                <li key={c.id} className="py-3 flex justify-between items-center text-sm">
+                  <div>
+                    <p className="font-medium">{c.name}</p>
+                    <p className="text-gray-500">{c.company_type} · {c.country}</p>
+                  </div>
+                  {c.approved
+                    ? <span className="text-xs bg-green-50 text-green-700 rounded px-2 py-1">Onayli</span>
+                    : <ApproveButton companyId={c.id} />}
                 </li>
               ))}
             </ul>

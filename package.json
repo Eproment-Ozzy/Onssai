@@ -1,7 +1,7 @@
 {
   "name": "onssai",
   "version": "0.1.0",
-  "description": "ProductiON ProseSS AI — Global Manufacturing Platform",
+  "description": "ProductiON ProseSS AI \u2014 Global Manufacturing Platform",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000",
@@ -17,11 +17,14 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
+    "@types/node": "^22.0.0",
     "@types/react": "^18.0.0",
     "autoprefixer": "^10.5.5",
     "postcss": "^8.5.28",
     "tailwindcss": "^3.4.19",
     "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": "22.x"
   }
 }

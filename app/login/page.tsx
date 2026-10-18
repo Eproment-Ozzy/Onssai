@@ -19,10 +19,14 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     setLoading(false)
     if (error) {
-      setError(error.message)
+      setError(error.message === 'Email not confirmed'
+        ? 'E-posta adresin henuz onaylanmadi. Gelen kutundaki linke tikla.'
+        : error.message)
       return
     }
-    router.push('/dashboard')
+    // Sadece site ici yollara don (acik yonlendirmeyi engelle)
+    const next = new URLSearchParams(window.location.search).get('next')
+    router.push(next && next.startsWith('/') && !next.startsWith('//') ? next : '/dashboard')
     router.refresh()
   }
 
