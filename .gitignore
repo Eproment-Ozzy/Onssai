@@ -8,3 +8,4 @@ dev.log
 *.onnx
 *.tar.gz
 *.so
+supabase/.temp/
